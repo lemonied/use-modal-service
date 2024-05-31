@@ -3,10 +3,8 @@ hero:
   title: library
   description: A react library developed with dumi
   actions:
-    - text: Hello
-      link: /
-    - text: World
-      link: /
+    - text: ModalService
+      link: /components/modal-service
 features:
   - title: Hello
     emoji: 💎
@@ -14,9 +12,4 @@ features:
   - title: World
     emoji: 🌈
     description: Put world description here
-  - title: '!'
-    emoji: 🚀
-    description: Put ! description here
 ---
-
-use-modal-service
