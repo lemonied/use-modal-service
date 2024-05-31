@@ -81,7 +81,7 @@ export const useModalService = () => {
     }
   }, [getHolderInstance, update]);
 
-  const open = React.useCallback(function <Result = any>(options: ModalServiceOptions) {
+  const create = React.useCallback(function <Result = any>(options: ModalServiceOptions) {
 
     keyRef.current += 1;
     const key = keyRef.current;
@@ -132,9 +132,9 @@ export const useModalService = () => {
 
   return React.useMemo(() => {
     return [
-      open,
+      create,
       <ModalHolder key="modalHolder" ref={modalHolderRef} />,
     ] as const;
-  }, [open]);
+  }, [create]);
 
 };

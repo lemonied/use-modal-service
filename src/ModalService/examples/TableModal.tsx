@@ -16,7 +16,7 @@ export default () => {
       age: 12,
     },
   ]);
-  const [open, holder] = useModalService();
+  const [create, holder] = useModalService();
 
   return (
     <>
@@ -43,7 +43,7 @@ export default () => {
                   <Button
                     type="link"
                     onClick={async () => {
-                      const modal = open({
+                      const modal = create({
                         title: '编辑',
                         children: <EditForm record={record} />,
                       });

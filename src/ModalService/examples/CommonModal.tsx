@@ -4,14 +4,14 @@ import { useModalService } from 'use-modal-service';
 
 export default () => {
 
-  const [open, holder] = useModalService();
+  const [create, holder] = useModalService();
 
   return (
     <>
       {holder}
       <Button
         onClick={async () => {
-          const modal = open<string>({
+          const modal = create<string>({
             title: '这是一个弹窗',
             children: '弹窗内容',
             async onOk() {
