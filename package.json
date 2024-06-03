@@ -30,8 +30,8 @@
     "react",
     "react-component",
     "modal",
-    "modalService",
-    "Modal Service"
+    "modal-service",
+    "antd-modal"
   ],
   "license": "MIT",
   "files": [
