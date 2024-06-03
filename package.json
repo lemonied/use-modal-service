@@ -23,6 +23,16 @@
   "authors": [
     "chenjiyuan.super@gmail.com"
   ],
+  "homepage": "https://lemonied.github.io/use-modal-service",
+  "keywords": [
+    "component",
+    "components",
+    "react",
+    "react-component",
+    "modal",
+    "modalService",
+    "Modal Service"
+  ],
   "license": "MIT",
   "files": [
     "dist"
