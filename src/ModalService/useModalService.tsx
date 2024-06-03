@@ -81,23 +81,20 @@ export const useModalService = () => {
     }
   }, [getHolderInstance, update]);
 
-  const create = React.useCallback(function <Result = any>(options: ModalServiceOptions) {
+  const create = React.useCallback(function <Result = any>(options: ModalServiceOptions = {}) {
 
     keyRef.current += 1;
     const key = keyRef.current;
 
-    const { onOk, children, ...restOptions } = options;
-
     const item: ModalServiceItem = {
       key,
       open: true,
-      children,
-      options: restOptions,
+      options,
       hooks: new Map(),
     };
 
     item.hooks.set('close', (result?: any) => close(key, result));
-    item.hooks.set('onOk', onOk);
+    item.hooks.set('onOk', options.onOk);
     item.hooks.set('onOks', []);
     item.hooks.set('triggerOk', () => ok(key));
     item.hooks.set('update', (props: ModalServiceItem['options']) => update(key, props));

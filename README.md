@@ -41,7 +41,7 @@ const MainPage = () => {
 
 ## Options
 
-[API文档](https://lemonied.github.io/use-modal-service)
+[API文档](https://lemonied.github.io/use-modal-service/components/modal-service)
 
 ## Development
 

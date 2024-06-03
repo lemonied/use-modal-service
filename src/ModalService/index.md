@@ -32,7 +32,7 @@ title: ModalService
 `create(options)`打开一个弹窗并返回弹窗的实例
 
 ```tsx | pure
-type create = <Result=any>(options: ModalServiceOptions) => ModalInstance<Result> & { afterClose: Promise<any> };
+type create = <Result=any>(options?: ModalServiceOptions) => ModalInstance<Result> & { afterClose: Promise<Result | undefined> };
 ```
 
 - `create`方法返回的实例会额外多出一个`afterClose`属性，这是个`Promise`，返回值为调用`close`方法时传入的值；
@@ -94,13 +94,13 @@ interface ModalInstance<Result = any> {
    */
   close: (value?: Result) => void;
   /**
-   * 主动触发onOk函数
+   * 手动触发onOk函数
    */
   triggerOk: NonNullable<ModalServiceOptions['onOk']>;
   /**
    * 更新ModalProps
    */
-  update: (options: Omit<ModalServiceOptions, 'children'> | ((pre: Omit<ModalServiceOptions, 'children'>) => Omit<ModalServiceOptions, 'children'>)) => void;
+  update: (options: ModalServiceOptions | ((pre: ModalServiceOptions) => ModalServiceOptions)) => void;
 };
 ```
 

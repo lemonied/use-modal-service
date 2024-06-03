@@ -1,7 +1,7 @@
 {
   "name": "use-modal-service",
-  "version": "0.0.1",
-  "description": "A react library developed with dumi",
+  "version": "0.0.2",
+  "description": "antd modal service",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {

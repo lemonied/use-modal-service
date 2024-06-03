@@ -8,8 +8,7 @@ export interface ModalServiceItem {
   key: number;
   open: boolean;
   hooks: Map<string, any>;
-  children: ModalServiceOptions['children'];
-  options: Omit<ModalServiceOptions, 'children'>;
+  options: ModalServiceOptions;
 }
 
 export interface ModalInstance<Result = any> {
@@ -18,7 +17,7 @@ export interface ModalInstance<Result = any> {
   /**
    * update modal options
    */
-  update: (options: ModalServiceItem['options'] | ((pre: ModalServiceItem['options']) => ModalServiceItem['options'])) => void;
+  update: (options: ModalServiceOptions | ((pre: ModalServiceOptions) => ModalServiceOptions)) => void;
 };
 
 export interface InternalModalInstance<Result = any> extends ModalInstance<Result> {

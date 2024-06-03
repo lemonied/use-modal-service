@@ -17,7 +17,7 @@ const ModalHolderFC = React.forwardRef<ModalHolderInstance>((_, ref) => {
 
   React.useImperativeHandle(ref, () => {
     return { items, setItems };
-  });
+  }, [items, setItems]);
 
   return (
     <>
@@ -32,7 +32,7 @@ const ModalHolderFC = React.forwardRef<ModalHolderInstance>((_, ref) => {
                   onOk={item.hooks.get('triggerOk')}
                   onCancel={item.hooks.get('onCancel')}
                   afterClose={item.hooks.get('afterClose')}
-                >{item.children}</Modal>
+                >{item.options.children}</Modal>
               </ModalServiceProvider>
             </React.Fragment>
           );
