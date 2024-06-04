@@ -16,11 +16,10 @@ export default () => {
       age: 12,
     },
   ]);
-  const [create, holder] = useModalService();
+  const [create] = useModalService();
 
   return (
     <>
-      {holder}
       <Table
         dataSource={data}
         pagination={false}
@@ -44,7 +43,6 @@ export default () => {
                     type="link"
                     onClick={async () => {
                       const modal = create({
-                        title: '编辑',
                         children: <EditForm record={record} />,
                       });
                       const result = await modal.afterClose; // result为close方法传入的值，如果点击×号或点击Cancel关闭的弹窗，result为undefined

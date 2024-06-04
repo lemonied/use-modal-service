@@ -4,11 +4,10 @@ import { useModalService } from 'use-modal-service';
 
 export default () => {
 
-  const [create, holder] = useModalService();
+  const [create] = useModalService();
 
   return (
     <>
-      {holder}
       <Button
         onClick={async () => {
           const modal = create<string>({

@@ -5,13 +5,19 @@
 
 `ModalService`依赖于`antd`，目的是使用服务的方式来调用`Modal`弹窗，使用者不必关心弹窗的显示/隐藏及确认按钮的异步处理，只需要关注业务逻辑即可
 
+## Install
+
+```bash
+npm install use-modal-service
+```
+
 ## Usage
 
 ```tsx
 import { useModalService, useModalInstance, useOnOkInject } from 'use-modal-service';
 const ModalContent = () => {
-  const modal = useModalInstance();
-  useOnOkInject(async () => {
+  const modal = useModalInstance(); // 获取Modal实例
+  useOnOkInject(async () => { // 在子组件中注入onOk的方法
     await new Promise((resolve) => { setTimeout(resolve, 1000); }); // 模拟异步接口调用
     modal?.close('回传结果'); // 回传给父级afterClose的值
   });
@@ -20,10 +26,9 @@ const ModalContent = () => {
   );
 };
 const MainPage = () => {
-  const [create, holder] = useModalService();
+  const [create] = useModalService();
   return (
     <>
-      {holder}
       <Button
         onClick={async () => {
           const modal = create<string>({
@@ -41,7 +46,7 @@ const MainPage = () => {
 
 ## Options
 
-[API文档](https://lemonied.github.io/use-modal-service/components/modal-service)
+更多示例：[API文档](https://lemonied.github.io/use-modal-service/components/modal-service)
 
 ## Development
 

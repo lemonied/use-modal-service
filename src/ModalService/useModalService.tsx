@@ -3,88 +3,20 @@ import type { ModalInstance, ModalServiceItem, ModalServiceOptions } from './mod
 import { ModalHolder } from './ModalHolder';
 import type { ModalHolderInstance } from './ModalHolder';
 import { getInstanceFromHooks } from './Context';
+import { render } from './util';
 
 export const useModalService = () => {
 
-  const modalHolderRef = React.useRef<ModalHolderInstance>(null);
+  const scopedHolderRef = React.useRef<ModalHolderInstance>(null);
+  const rootHolderRef = React.useRef<ModalHolderInstance>(null);
   const keyRef = React.useRef(0);
-
-  const getHolderInstance = React.useCallback(() => {
-    if (!modalHolderRef.current) {
-      // eslint-disable-next-line no-console
-      console.error('Please insert the holder into the page node, otherwise ModalService will not work properly');
-    }
-    return modalHolderRef.current;
-  }, []);
-
-  const update = React.useCallback((key: number, modalProps: Parameters<ModalInstance['update']>[0]) => {
-    const holderInstance = getHolderInstance();
-    holderInstance?.setItems(pre => {
-      const item = pre.find(v => v.key === key);
-      if (!item) {
-        return pre;
-      }
-      const mergedProps = typeof modalProps === 'function' ? modalProps({ ...item.options, onOk: item.hooks.get('onOk') }) : modalProps;
-      const { onOk, ...restProps } = mergedProps;
-      if ('onOk' in mergedProps) {
-        item.hooks.set('onOk', onOk);
-      }
-      return [
-        ...pre.filter(v => v !== item),
-        {
-          ...item,
-          options: {
-            ...item.options,
-            ...restProps,
-          },
-        },
-      ];
-    });
-  }, [getHolderInstance]);
-
-  const close = React.useCallback(function <T = any>(key: number, value?: T) {
-    const holderInstance = getHolderInstance();
-    holderInstance?.setItems(pre => {
-      const item = pre.find(v => v.key === key);
-      if (item) {
-        item.hooks.get('resolve')(value);
-        return [
-          ...pre.filter(v => v !== item),
-          {
-            ...item,
-            open: false,
-            options: {
-              ...item.options,
-              confirmLoading: false,
-            },
-          },
-        ];
-      }
-      return pre;
-    });
-  }, [getHolderInstance]);
-
-  const ok = React.useCallback(async (key: number) => {
-    update(key, { confirmLoading: true });
-    try {
-      const holderInstance = getHolderInstance();
-      const hooks = holderInstance?.items.find(v => v.key === key)?.hooks;
-      const onOks: (() => any)[] = hooks?.get('onOks') ?? [];
-      const onOk: () => any = hooks?.get('onOk');
-      const fn = onOks[onOks.length - 1] ?? onOk;
-      const value = await fn?.();
-      update(key, { confirmLoading: false });
-      return value;
-    } catch (err) {
-      update(key, { confirmLoading: false });
-      throw err;
-    }
-  }, [getHolderInstance, update]);
 
   const create = React.useCallback(function <Result = any>(options: ModalServiceOptions = {}) {
 
     keyRef.current += 1;
     const key = keyRef.current;
+
+    const holderRef = scopedHolderRef.current ? scopedHolderRef : rootHolderRef;
 
     const item: ModalServiceItem = {
       key,
@@ -92,46 +24,113 @@ export const useModalService = () => {
       options,
       hooks: new Map(),
     };
+    const hooks = item.hooks;
 
-    item.hooks.set('close', (result?: any) => close(key, result));
-    item.hooks.set('onOk', options.onOk);
-    item.hooks.set('onOks', []);
-    item.hooks.set('triggerOk', () => ok(key));
-    item.hooks.set('update', (props: ModalServiceItem['options']) => update(key, props));
-    item.hooks.set('onCancel', (...args: Parameters<NonNullable<ModalServiceOptions['onCancel']>>) => {
-      const holderInstance = getHolderInstance();
-      const item = holderInstance?.items.find(v => v.key === key);
-      if (item) {
-        close(key);
-        return item.options.onCancel?.(...args);
+    const close: ModalInstance<Result>['close'] = (result) => {
+      hooks.get('resolve')(result);
+      holderRef.current?.setItems(pre => {
+        const item = pre.find(v => v.key === key);
+        if (item) {
+          return [
+            ...pre.filter(v => v !== item),
+            {
+              ...item,
+              open: false,
+              options: {
+                ...item.options,
+                confirmLoading: false,
+              },
+            },
+          ];
+        }
+        return pre;
+      });
+    };
+    hooks.set('close', close);
+
+    hooks.set('onOk', options.onOk);
+
+    hooks.set('onOks', []);
+
+    const update: ModalInstance<Result>['update'] = (options) => {
+      holderRef.current?.setItems(pre => {
+        const item = pre.find(v => v.key === key);
+        if (!item) {
+          return pre;
+        }
+        const mergedProps = typeof options === 'function' ? options({ ...item.options, onOk: item.hooks.get('onOk') }) : options;
+        const { onOk, ...restProps } = mergedProps;
+        if ('onOk' in mergedProps) {
+          item.hooks.set('onOk', onOk);
+        }
+        return [
+          ...pre.filter(v => v !== item),
+          {
+            ...item,
+            options: {
+              ...item.options,
+              ...restProps,
+            },
+          },
+        ];
+      });
+    };
+    hooks.set('update', update);
+
+    const triggerOk: ModalInstance<Result>['triggerOk'] = async () => {
+      update({ confirmLoading: true });
+      try {
+        const onOks: (() => any)[] = hooks.get('onOks') ?? [];
+        const onOk: () => any = hooks.get('onOk');
+        const fn = onOks[onOks.length - 1] ?? onOk;
+        const value = await fn?.();
+        update({ confirmLoading: false });
+        return value;
+      } catch (err) {
+        update({ confirmLoading: false });
+        throw err;
       }
+    };
+    hooks.set('triggerOk', triggerOk);
+
+    hooks.set('onCancel', (...args: Parameters<NonNullable<ModalServiceOptions['onCancel']>>) => {
+      close();
+      return holderRef.current?.items.find(v => v.key === key)?.options.onCancel?.(...args);
     });
-    item.hooks.set('afterClose', () => {
-      const holderInstance = getHolderInstance();
-      const item = holderInstance?.items.find(v => v.key === key);
-      holderInstance?.setItems(pre => pre.filter(v => v.key !== key));
-      return item?.options.afterClose?.();
+
+    hooks.set('afterClose', () => {
+      holderRef.current?.setItems(pre => pre.filter(v => v.key !== key));
+      return holderRef.current?.items.find(v => v.key === key)?.options.afterClose?.();
     });
 
     const afterClose = new Promise<Result | undefined>((resolve) => {
-      item.hooks.set('resolve', resolve);
+      hooks.set('resolve', resolve);
     });
 
-    const holderInstance = getHolderInstance();
-    holderInstance?.setItems(pre => [...pre, item]);
+    holderRef.current?.setItems(pre => [...pre, item]);
 
     return {
       afterClose,
       ...getInstanceFromHooks<Result>(item.hooks),
     };
 
-  }, [close, getHolderInstance, ok, update]);
+  }, []);
 
-  return React.useMemo(() => {
-    return [
-      create,
-      <ModalHolder key="modalHolder" ref={modalHolderRef} />,
-    ] as const;
-  }, [create]);
+  React.useEffect(() => {
+    const container = document.createDocumentFragment();
+    document.body.appendChild(container);
+    const unmount = render(
+      container,
+      <ModalHolder ref={rootHolderRef} />,
+    );
+    return () => {
+      unmount();
+      document.body.removeChild(container);
+    };
+  }, []);
+
+  const holder = React.useMemo(() => <ModalHolder key="modal-holder" ref={scopedHolderRef} />, []);
+
+  return [create, holder] as const;
 
 };

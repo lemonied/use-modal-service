@@ -13,7 +13,7 @@ export interface ModalServiceItem {
 
 export interface ModalInstance<Result = any> {
   close: (value?: Result) => void;
-  triggerOk: NonNullable<ModalServiceOptions['onOk']>;
+  triggerOk: () => Promise<any>;
   /**
    * update modal options
    */

@@ -12,7 +12,9 @@ title: ModalService
 
 ### 在表格中使用
 
-在子组件中获取`modal实例`并注入`onOk`的函数
+- 在子组件中获取`modal实例`并注入`onOk`的函数
+- 在子组件中调用`update`方法异步更新`ModalProps`
+- 在子组件中调用`close`方法关闭弹窗并将结果回传给父级
 
 <code src="./examples/TableModal.tsx"></code>
 
@@ -20,6 +22,12 @@ title: ModalService
 
 1. `Table`组件只负责`Modal`的显示/关闭，并且处理`Modal`关闭后的返回值
 2. `EditForm`组件只负责表单的逻辑，注入点击`OK`的回调，以及关闭后的返回值
+
+### Modal获取上下文
+
+当你的`Modal`需要获取上下文时，请将`holder`插入到对应位置，`Modal`内组件就可以获取`holder`所处位置的上下文（`Context`、`Redux`、`dva`等）
+
+<code src="./examples/ContextModal.tsx"></code>
 
 ## API
 
@@ -42,8 +50,9 @@ type create = <Result=any>(options?: ModalServiceOptions) => ModalInstance<Resul
 
 #### holder
 
-`holder`是一个`ReactElement`，需要插入到当前页面的节点中去（最好放在最外层），例如：
+`holder`是一个`ReactElement`，如果需要获取上下文，需要将holder插入到页面节点中去：
 ```tsx | pure
+const [create, holder] = useModalService();
 return (
   <>
     {holder}
@@ -51,7 +60,9 @@ return (
   </>
 );
 ```
-目的是为了让`Modal`组件内可以获取到`holder`所处位置的上下文（`Context`、`redux`、`dva`等）
+
+- `holder`里其实就是`Modal`组件，如果插入了`holder`，那么`Modal`内组件就能获取`holder`所处位置的上下文（`Context`、`redux`、`dva`等）
+- 相反，如果没有插入`holder`，则`create`创建的`Modal`会被注入到全局，就无法获取上下文
 
 ```tsx | pure
 type holder = React.ReactElement;
@@ -96,7 +107,7 @@ interface ModalInstance<Result = any> {
   /**
    * 手动触发onOk函数
    */
-  triggerOk: NonNullable<ModalServiceOptions['onOk']>;
+  triggerOk: () => Promise<any>;
   /**
    * 更新ModalProps
    */
