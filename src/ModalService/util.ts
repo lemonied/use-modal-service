@@ -14,11 +14,12 @@ function toggleWarning(skip: boolean) {
 export function render(container: Element | DocumentFragment, children: React.ReactElement) {
   const reactVersion = ReactDOM.version;
   const majorVersion = parseInt(reactVersion.split('.')[0], 10);
+  let unmount: () => void;
 
   if (majorVersion < 18) {
     // eslint-disable-next-line react/no-deprecated
     ReactDOM.render(children, container);
-    return () => {
+    unmount = () => {
       // eslint-disable-next-line react/no-deprecated
       ReactDOM.unmountComponentAtNode(container);
     };
@@ -27,6 +28,14 @@ export function render(container: Element | DocumentFragment, children: React.Re
     const root = (ReactDOM as any).createRoot(container);
     toggleWarning(false);
     root.render(children);
-    return () => root.unmount();
+    unmount = () => {
+      // Delay to unmount to avoid React 18 sync warning
+      Promise.resolve().then(() => root.unmount());
+    };
   }
+
+  return () => {
+    unmount();
+    container.parentNode?.removeChild(container);
+  };
 }

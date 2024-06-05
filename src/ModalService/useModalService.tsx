@@ -119,14 +119,10 @@ export const useModalService = () => {
   React.useEffect(() => {
     const container = document.createDocumentFragment();
     document.body.appendChild(container);
-    const unmount = render(
+    return render(
       container,
       <ModalHolder ref={rootHolderRef} />,
     );
-    return () => {
-      unmount();
-      document.body.removeChild(container);
-    };
   }, []);
 
   const holder = React.useMemo(() => <ModalHolder key="modal-holder" ref={scopedHolderRef} />, []);
