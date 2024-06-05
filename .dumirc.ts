@@ -7,16 +7,13 @@ export default defineConfig({
   base: BASE_PATH,
   publicPath: BASE_PATH,
   mfsu: false,
+  title: 'useModalService',
   themeConfig: {
-    name: 'use-modal',
+    logo: false,
     editLink: false,
     footer: false,
-    nav: [
-      {
-        title: 'API',
-        link: '/components/modal-service',
-      },
-    ],
+    name: 'useModalService',
+    nav: [],
     socialLinks: {
       github: 'https://github.com/lemonied/use-modal-service',
     },
