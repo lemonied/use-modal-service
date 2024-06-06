@@ -1,8 +1,13 @@
 import type React from 'react';
 import * as ReactDOM from 'react-dom';
 
+// Let compiler not to search module usage
+const fullClone = {
+  ...ReactDOM,
+} as any;
+
 function toggleWarning(skip: boolean) {
-  const { __SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED } = ReactDOM as any;
+  const { __SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED } = fullClone;
   if (
     __SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED &&
     typeof __SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED === 'object'
@@ -25,7 +30,7 @@ export function render(container: Element | DocumentFragment, children: React.Re
     };
   } else {
     toggleWarning(true);
-    const root = (ReactDOM as any).createRoot(container);
+    const root = fullClone.createRoot(container);
     toggleWarning(false);
     root.render(children);
     unmount = () => {
