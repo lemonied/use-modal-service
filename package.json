@@ -1,6 +1,6 @@
 {
   "name": "use-modal-service",
-  "version": "0.0.4",
+  "version": "1.0.0",
   "description": "antd modal service",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -23,6 +23,10 @@
   "authors": [
     "chenjiyuan.super@gmail.com"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lemonied/use-modal-service"
+  },
   "homepage": "https://lemonied.github.io/use-modal-service",
   "keywords": [
     "component",
@@ -47,7 +51,7 @@
     "registry": "https://registry.npmjs.org"
   },
   "peerDependencies": {
-    "antd": "^4.23.0 || ^5.0.0",
+    "antd": "^3.0.0 || ^4.0.0 || ^5.0.0",
     "react": ">=16.9.0",
     "react-dom": ">=16.9.0"
   },

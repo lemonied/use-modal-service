@@ -1,13 +1,15 @@
 import type { ModalProps } from 'antd';
 
-export interface ModalServiceOptions extends Omit<ModalProps, 'open' | 'onOk'> {
+export interface ModalServiceOptions extends Omit<ModalProps, 'open' | 'onOk' | 'visible'> {
   onOk?: () => any;
 }
 
-export interface ModalServiceItem {
+export type InternalHooks = Map<string, any>;
+
+export interface ModalHolderItem {
   key: number;
   open: boolean;
-  hooks: Map<string, any>;
+  hooks: InternalHooks;
   options: ModalServiceOptions;
 }
 
@@ -21,5 +23,5 @@ export interface ModalInstance<Result = any> {
 };
 
 export interface InternalModalInstance<Result = any> extends ModalInstance<Result> {
-  getHooks: (token: symbol) => ModalServiceItem['hooks'];
+  getHooks: (token: symbol) => ModalHolderItem['hooks'];
 }

@@ -1,9 +1,9 @@
 import React from 'react';
-import type { ModalInstance, ModalServiceItem, ModalServiceOptions } from './model';
+import type { ModalInstance, ModalHolderItem, ModalServiceOptions } from './model';
 import { ModalHolder } from './ModalHolder';
 import type { ModalHolderInstance } from './ModalHolder';
-import { getInstanceFromHooks } from './Context';
-import { render } from './util';
+import { getModalInstanceFromHooks } from './Context';
+import { render } from '../util';
 
 export const useModalService = () => {
 
@@ -18,7 +18,7 @@ export const useModalService = () => {
 
     const holderRef = scopedHolderRef.current ? scopedHolderRef : rootHolderRef;
 
-    const item: ModalServiceItem = {
+    const item: ModalHolderItem = {
       key,
       open: true,
       options,
@@ -111,7 +111,7 @@ export const useModalService = () => {
 
     return {
       afterClose,
-      ...getInstanceFromHooks<Result>(item.hooks),
+      ...getModalInstanceFromHooks<Result>(item.hooks),
     };
 
   }, []);

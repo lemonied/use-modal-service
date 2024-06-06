@@ -11,6 +11,11 @@
 npm install use-modal-service
 ```
 
+支持`antd@3`、`antd@4`、`antd@5`
+```bash
+npm install antd
+```
+
 ## Usage
 
 ```tsx

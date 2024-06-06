@@ -90,7 +90,7 @@ type useOnOkInject = (onOk: () => any) => void;
 继承自antd [ModalProps](https://ant-design.antgroup.com/components/modal-cn#api)
 
 ```tsx | pure
-export interface ModalServiceOptions extends Omit<ModalProps, 'open' | 'onOk'> {
+export interface ModalServiceOptions extends Omit<ModalProps, 'open' | 'onOk' | 'visible'> {
   // onOk函数返回一个Promise时，将会给ok按钮自动加上loading
   onOk?: () => any;
 }

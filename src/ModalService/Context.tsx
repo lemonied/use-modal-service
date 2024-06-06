@@ -1,5 +1,5 @@
 import React from 'react';
-import type { InternalModalInstance, ModalInstance, ModalServiceItem, ModalServiceOptions } from './model';
+import type { InternalModalInstance, ModalInstance, InternalHooks, ModalServiceOptions } from './model';
 
 const INTERNAL_TOKEN = Symbol('hooks');
 
@@ -9,7 +9,7 @@ export function useModalInstance<Result = any>(): ModalInstance<Result> | null {
   return React.useContext(ModalServiceContext);
 };
 
-export function getInstanceFromHooks<Result = any>(hooks: ModalServiceItem['hooks']) {
+export function getModalInstanceFromHooks<Result = any>(hooks: InternalHooks) {
   const instance: InternalModalInstance<Result> = {
     close: hooks.get('close'),
     triggerOk: hooks.get('triggerOk'),
@@ -24,14 +24,13 @@ export function getInstanceFromHooks<Result = any>(hooks: ModalServiceItem['hook
   return instance as ModalInstance<Result>;
 };
 
-export const ModalServiceProvider = React.memo((props: React.PropsWithChildren<{ value: ModalServiceItem }>) => {
+export const ModalServiceProvider = React.memo((props: React.PropsWithChildren<{ value: InternalHooks }>) => {
 
   const { children, value } = props;
-  const { hooks } = value;
 
   const instance = React.useMemo(() => {
-    return getInstanceFromHooks(hooks);
-  }, [hooks]);
+    return getModalInstanceFromHooks(value);
+  }, [value]);
 
   return (
     <ModalServiceContext.Provider value={instance}>{children}</ModalServiceContext.Provider>
