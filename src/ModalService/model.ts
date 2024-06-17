@@ -1,4 +1,4 @@
-import type { ModalProps } from 'antd';
+import type { ModalProps } from 'antd/lib/modal';
 
 export interface ModalServiceOptions extends Omit<ModalProps, 'open' | 'onOk' | 'visible'> {
   onOk?: () => any;

@@ -1,22 +1,47 @@
 import React from 'react';
+import { Modal } from 'antd';
+import { usePortal } from '@lemonied/use-portal';
+import { getModalInstanceFromHooks, ModalServiceProvider } from './Context';
+import { isModernModal } from './util';
 import type { ModalInstance, ModalHolderItem, ModalServiceOptions } from './model';
-import { ModalHolder } from './ModalHolder';
-import type { ModalHolderInstance } from './ModalHolder';
-import { getModalInstanceFromHooks } from './Context';
-import { render } from '../util';
+
+const isModern = isModernModal();
 
 export const useModalService = () => {
 
-  const scopedHolderRef = React.useRef<ModalHolderInstance>(null);
-  const rootHolderRef = React.useRef<ModalHolderInstance>(null);
+  const [renderPortal, holder] = usePortal();
+  const itemsRef = React.useRef<ModalHolderItem[]>([]);
   const keyRef = React.useRef(0);
+
+  const render = React.useCallback((items: ModalHolderItem[] | ((pre: ModalHolderItem[]) => ModalHolderItem[])) => {
+    const list = typeof items === 'function' ? items(itemsRef.current) : items;
+    itemsRef.current = list;
+    renderPortal(
+      <>
+        {
+          list.map(item => {
+            const controller = isModern ? { open: item.open } : { visible: item.open };
+            return (
+              <ModalServiceProvider value={item.hooks} key={item.key}>
+                <Modal
+                  {...item.options}
+                  {...controller}
+                  onOk={item.hooks.get('triggerOk')}
+                  onCancel={item.hooks.get('onCancel')}
+                  afterClose={item.hooks.get('afterClose')}
+                >{item.options.children}</Modal>
+              </ModalServiceProvider>
+            );
+          })
+        }
+      </>,
+    );
+  }, [renderPortal]);
 
   const create = React.useCallback(function <Result = any>(options: ModalServiceOptions = {}) {
 
     keyRef.current += 1;
     const key = keyRef.current;
-
-    const holderRef = scopedHolderRef.current ? scopedHolderRef : rootHolderRef;
 
     const item: ModalHolderItem = {
       key,
@@ -28,7 +53,7 @@ export const useModalService = () => {
 
     const close: ModalInstance<Result>['close'] = (result) => {
       hooks.get('resolve')(result);
-      holderRef.current?.setItems(pre => {
+      render(pre => {
         const item = pre.find(v => v.key === key);
         if (item) {
           return [
@@ -53,7 +78,7 @@ export const useModalService = () => {
     hooks.set('onOks', []);
 
     const update: ModalInstance<Result>['update'] = (options) => {
-      holderRef.current?.setItems(pre => {
+      render(pre => {
         const item = pre.find(v => v.key === key);
         if (!item) {
           return pre;
@@ -95,37 +120,26 @@ export const useModalService = () => {
 
     hooks.set('onCancel', (...args: Parameters<NonNullable<ModalServiceOptions['onCancel']>>) => {
       close();
-      return holderRef.current?.items.find(v => v.key === key)?.options.onCancel?.(...args);
+      return itemsRef.current.find(v => v.key === key)?.options.onCancel?.(...args);
     });
 
     hooks.set('afterClose', () => {
-      holderRef.current?.setItems(pre => pre.filter(v => v.key !== key));
-      return holderRef.current?.items.find(v => v.key === key)?.options.afterClose?.();
+      render(pre => pre.filter(v => v.key !== key));
+      return itemsRef.current.find(v => v.key === key)?.options.afterClose?.();
     });
 
     const afterClose = new Promise<Result | undefined>((resolve) => {
       hooks.set('resolve', resolve);
     });
 
-    holderRef.current?.setItems(pre => [...pre, item]);
+    render(pre => [...pre, item]);
 
     return {
       afterClose,
       ...getModalInstanceFromHooks<Result>(item.hooks),
     };
 
-  }, []);
-
-  React.useEffect(() => {
-    const container = document.createDocumentFragment();
-    document.body.appendChild(container);
-    return render(
-      container,
-      <ModalHolder ref={rootHolderRef} />,
-    );
-  }, []);
-
-  const holder = React.useMemo(() => <ModalHolder key="modal-holder" ref={scopedHolderRef} />, []);
+  }, [render]);
 
   return [create, holder] as const;
 
