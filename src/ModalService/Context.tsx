@@ -1,7 +1,7 @@
 import React from 'react';
 import type { InternalModalInstance, ModalInstance, InternalHooks, ModalServiceOptions } from './model';
 
-const INTERNAL_TOKEN = Symbol('hooks');
+const INTERNAL_TOKEN = '__MODAL_SERVICE_INTERNAL_TOKEN__';
 
 const ModalServiceContext = React.createContext<ModalInstance | null>(null);
 

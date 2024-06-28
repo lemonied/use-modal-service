@@ -1,7 +1,9 @@
+import type React from 'react';
 import type { ModalProps } from 'antd/lib/modal';
 
-export interface ModalServiceOptions extends Omit<ModalProps, 'open' | 'onOk' | 'visible'> {
+export interface ModalServiceOptions extends Omit<ModalProps, 'open' | 'onOk' | 'visible' | 'children'> {
   onOk?: () => any;
+  children?: React.ReactNode;
 }
 
 export type InternalHooks = Map<string, any>;
@@ -23,5 +25,5 @@ export interface ModalInstance<Result = any> {
 };
 
 export interface InternalModalInstance<Result = any> extends ModalInstance<Result> {
-  getHooks: (token: symbol) => ModalHolderItem['hooks'];
+  getHooks: (token: string) => ModalHolderItem['hooks'];
 }
